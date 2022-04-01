@@ -1,16 +1,14 @@
 from pydantic import BaseModel
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String
-# from app.sem_Student.schemas import SemesterStudent
-# from app.subject_Document.schemas import SubjectDocument
-
+from fastapi import Depends
+from typing import Optional
 
 class User(BaseModel):
     id : int
     email : str
     hashed_password : str
-    # user_sem_subject = SemesterStudent
-    # user_sub_doc = SubjectDocument
+
 
     class Config:
         orm_mode = True
@@ -26,6 +24,15 @@ class UserCreate(BaseModel):
     hashed_password : str
 
 
+class Login(BaseModel):
+    username: str
+    password: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class TokenData(BaseModel):
+    username: Optional[str] = None

@@ -14,6 +14,7 @@ from app.sem_Student import models as sem_student_model
 from app.subject import models as subject_model
 from app.subject_Document import models as subject_document_model
 from app.users import models as user_model
+from app.users.authentication import router as loginroute
 
 app = FastAPI()
 
@@ -25,7 +26,7 @@ semester_model.Base.metadata.create_all(bind=engine)
 branch_model.Base.metadata.create_all(bind=engine)
 
 
-
+app.include_router(loginroute)
 app.include_router(router)
 app.include_router(semroute)
 app.include_router(subjectroute)

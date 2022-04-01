@@ -4,6 +4,8 @@ from app.branch import schemas
 from app.branch.models import Branch
 from database import get_db
 from typing import List
+from app.users.oauth import get_current_url
+from app.users.schemas import UserCreate
 
 router = APIRouter(
     prefix="/branch",
@@ -12,7 +14,7 @@ router = APIRouter(
 
 
 @router.post('/', response_model=schemas.BranchNameResponse)
-def branch_create(request: schemas.BranchName, db: Session = Depends(get_db)):
+def branch_create(request: schemas.BranchName, db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     branch_data = Branch(name=request.name)
 
     db.add(branch_data)
@@ -23,13 +25,13 @@ def branch_create(request: schemas.BranchName, db: Session = Depends(get_db)):
 
 
 @router.get('/', response_model=List[schemas.BranchName])
-def list_of_data(db: Session = Depends(get_db)):
+def list_of_data(db: Session = Depends(get_db), get_current_user:UserCreate = Depends(get_current_url)):
     showdata = db.query(Branch).all()
     return showdata
 
 
 @router.get('/{id}', response_model=schemas.BranchName)
-def getdata(id, db: Session = Depends(get_db)):
+def getdata(id, db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     get_data = db.query(Branch).filter(Branch.id == id).first()
     if not get_data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Branch with the id {id} not found")
@@ -37,7 +39,7 @@ def getdata(id, db: Session = Depends(get_db)):
 
 
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
-def updatedata(id, request: schemas.BranchName, db: Session = Depends(get_db)):
+def updatedata(id, request: schemas.BranchName, db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     get_branch_id = db.query(Branch).filter(Branch.id == id)
     print(get_branch_id)
     if not get_branch_id.first():
@@ -48,7 +50,7 @@ def updatedata(id, request: schemas.BranchName, db: Session = Depends(get_db)):
 
 
 @router.delete('/{id}')
-def destroy(id, db: Session =  Depends(get_db)):
+def destroy(id, db: Session =  Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     branch_data_id = db.query(Branch).filter(Branch.id == id)
     if not branch_data_id.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Branch with the id {id} not found")

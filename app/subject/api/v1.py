@@ -6,6 +6,9 @@ from app.subject.models import Subject
 from app.subject import schemas
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.subject.schemas import SubjectDataList
+from app.users.oauth import get_current_url
+from app.users.schemas import UserCreate
+
 
 router = APIRouter(
     prefix="/subject",
@@ -14,7 +17,7 @@ router = APIRouter(
 
 
 @router.post('/', response_model=schemas.SubjectSemId)
-def create_subject_data(request: schemas.Subject, db: Session = Depends(get_db)):
+def create_subject_data(request: schemas.Subject, db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     semester_id = db.query(Semester).get(request.semester_id)
     semester_data_create = Subject(name=request.name, semester_id=semester_id.id)
     db.add(semester_data_create)
@@ -24,13 +27,13 @@ def create_subject_data(request: schemas.Subject, db: Session = Depends(get_db))
 
 
 @router.get('/', response_model=List[SubjectDataList])
-def get_subject_record(db: Session = Depends(get_db)):
+def get_subject_record(db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     alldata = db.query(Subject).all()
     return alldata
 
 
 @router.get('/{id}', response_model=schemas.SubjectSemId)
-def get_record(id, db: Session = Depends(get_db)):
+def get_record(id, db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     getdata = db.query(Subject).filter(Subject.id == id).first()
     if not getdata:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Subject with the id {id} not found")
@@ -38,7 +41,7 @@ def get_record(id, db: Session = Depends(get_db)):
 
 
 @router.put('/{id}')
-def update_record(id, request: schemas.SubjectUpdate, db: Session = Depends(get_db)):
+def update_record(id, request: schemas.SubjectUpdate, db: Session = Depends(get_db),get_current_user:UserCreate = Depends(get_current_url)):
     update_data = db.query(Subject).filter(Subject.id == id)
     if not update_data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Semester with the id {id} not found")
